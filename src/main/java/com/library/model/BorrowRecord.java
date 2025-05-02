@@ -26,6 +26,8 @@ public class BorrowRecord {
     private LocalDate dueDate;
 
     private LocalDate returnDate;  // null if not returned yet
+
+    private boolean returned;
 }
 
 
