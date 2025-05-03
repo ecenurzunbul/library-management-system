@@ -5,16 +5,19 @@ import com.library.model.Book;
 import com.library.service.BookService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @RestController
 @RequestMapping("/api/books")
@@ -37,15 +40,23 @@ public class BookController {
 
     // Get book details by id
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id){
+    public ResponseEntity<BookDTO> getBookById(@PathVariable Long id){
         Optional<Book> bookOpt = bookService.getBookById(id);
-        return bookOpt.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if(bookOpt.isPresent()){
+            BookDTO bookDTO = new BookDTO();
+            bookDTO.setAuthor(bookOpt.get().getAuthor());
+            bookDTO.setIsbn(bookOpt.get().getIsbn());
+            bookDTO.setPublicationDate(bookOpt.get().getPublicationDate());
+            bookDTO.setTitle(bookOpt.get().getTitle());
+            bookDTO.setGenre(bookOpt.get().getGenre());
+            return new ResponseEntity<>(bookDTO, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     // Search books with pagination and optional filters (query params)
     @GetMapping
-    public ResponseEntity<Page<Book>> searchBooks(
+    public ResponseEntity<Page<BookDTO>> searchBooks(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String author,
             @RequestParam(required = false) String isbn,
@@ -55,7 +66,16 @@ public class BookController {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Book> books = bookService.searchBooks(title, author, isbn, genre, pageable);
-        return ResponseEntity.ok(books);
+
+        Page<BookDTO> bookDTOS = books.map(book -> BookDTO.builder()
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .isbn(book.getIsbn())
+                .publicationDate(book.getPublicationDate())
+                .genre(book.getGenre())
+                .build());
+
+        return ResponseEntity.ok(bookDTOS);
     }
 
     // Update book info

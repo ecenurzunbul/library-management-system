@@ -3,6 +3,7 @@ package com.library.dto;
 import com.library.model.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -19,7 +20,9 @@ public class UserDTO {
     @Email(message = "Email should be valid")
     private String email;
 
-    @NotBlank(message = "Role is required")
+    @NotNull(message = "Role is required")
     private User.Role role;  // e.g. "LIBRARIAN", "PATRON"
+
+    private String contactDetails;
 
 }

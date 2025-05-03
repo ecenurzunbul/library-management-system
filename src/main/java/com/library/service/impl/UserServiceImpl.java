@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
         user.setRole(userDTO.getRole());
+        user.setContactDetails(userDTO.getContactDetails());
         // Add password encoding, validation here
 
         return userRepository.save(user);
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService {
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
         user.setRole(userDTO.getRole());
+        user.setContactDetails(userDTO.getContactDetails());
 
         return userRepository.save(user);
     }

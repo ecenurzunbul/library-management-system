@@ -1,5 +1,6 @@
 package com.library.controller;
 
+import com.library.dto.BorrowRecordDTO;
 import com.library.model.BorrowRecord;
 import com.library.service.BorrowRecordService;
 
@@ -28,7 +29,16 @@ public class BorrowRecordController {
             @RequestParam Long userId) {
         try {
             BorrowRecord record = borrowRecordService.borrowBook(bookId, userId);
-            return new ResponseEntity<>(record, HttpStatus.CREATED);
+            BorrowRecordDTO borrowRecordDTO = new BorrowRecordDTO();
+            borrowRecordDTO.setId(record.getId());
+            borrowRecordDTO.setBookId(bookId);
+            borrowRecordDTO.setUserId(userId);
+            borrowRecordDTO.setBorrowDate(record.getBorrowDate());
+            borrowRecordDTO.setDueDate(record.getDueDate());
+            borrowRecordDTO.setReturnDate(record.getReturnDate());
+            borrowRecordDTO.setReturned(record.isReturned());
+
+            return new ResponseEntity<>(borrowRecordDTO, HttpStatus.CREATED);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

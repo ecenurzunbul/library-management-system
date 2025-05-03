@@ -1,2 +1,2 @@
 INSERT INTO users (name, email, role, contact_details) VALUES ('Admin User', 'admin@library.com', 'LIBRARIAN', '123-456-7890');
-INSERT INTO books (title, author, isbn, publication_date, genre, availability_status) VALUES ('Effective Java', 'Joshua Bloch', '9780134685991', '2018-01-06', 'Programming', true);
+INSERT INTO books (title, author, isbn, publication_date, genre, available) VALUES ('Effective Java', 'Joshua Bloch', '9780134685991', '2018-01-06', 'Programming', true);
