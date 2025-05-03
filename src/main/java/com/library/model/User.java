@@ -7,26 +7,29 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-    public class User {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-        private String name;
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
 
-        @Column(unique = true, nullable = false)
-        private String email;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-        @Enumerated(EnumType.STRING)
-        private Role role;
-        private String contactDetails;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    private String contactDetails;
 
-        // Relations
-        @OneToMany(mappedBy = "user")
-        private Set<BorrowRecord> borrowRecords;
+    @Column(nullable = false)
+    private String password;
 
-        public enum Role {
-            LIBRARIAN, PATRON
-        }
+    // Relations
+    @OneToMany(mappedBy = "user")
+    private Set<BorrowRecord> borrowRecords;
+
+    public enum Role {
+        LIBRARIAN, PATRON
+    }
 
 }
 

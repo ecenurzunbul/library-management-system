@@ -6,6 +6,7 @@ import com.library.repository.UserRepository;
 import com.library.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -15,12 +16,14 @@ import java.util.Optional;
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
-     
+
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository){
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -30,8 +33,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userDTO.getEmail());
         user.setRole(userDTO.getRole());
         user.setContactDetails(userDTO.getContactDetails());
-        // Add password encoding, validation here
-
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         return userRepository.save(user);
     }
 
@@ -46,6 +48,11 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userDTO.getEmail());
         user.setRole(userDTO.getRole());
         user.setContactDetails(userDTO.getContactDetails());
+
+        // If password provided and non-empty, update it (encode)
+        if (userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        }
 
         return userRepository.save(user);
     }
