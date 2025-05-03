@@ -8,8 +8,12 @@
 
 
 - Docker installed
-- Docker Compose installed
+https://www.docker.com/products/docker-desktop/
 
+- Docker Compose installed
+```bash
+brew install docker-compose
+```
 
 ### Running the Application with Docker
 
