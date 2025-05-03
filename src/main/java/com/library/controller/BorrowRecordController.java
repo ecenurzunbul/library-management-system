@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,16 +30,7 @@ public class BorrowRecordController {
             @RequestParam Long userId) {
         try {
             BorrowRecord record = borrowRecordService.borrowBook(bookId, userId);
-            BorrowRecordDTO borrowRecordDTO = new BorrowRecordDTO();
-            borrowRecordDTO.setId(record.getId());
-            borrowRecordDTO.setBookId(bookId);
-            borrowRecordDTO.setUserId(userId);
-            borrowRecordDTO.setBorrowDate(record.getBorrowDate());
-            borrowRecordDTO.setDueDate(record.getDueDate());
-            borrowRecordDTO.setReturnDate(record.getReturnDate());
-            borrowRecordDTO.setReturned(record.isReturned());
-
-            return new ResponseEntity<>(borrowRecordDTO, HttpStatus.CREATED);
+            return new ResponseEntity<>( BorrowRecordDTO.toDTO(record), HttpStatus.CREATED);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -49,7 +41,7 @@ public class BorrowRecordController {
     public ResponseEntity<?> returnBook(@RequestParam Long borrowRecordId) {
         try {
             BorrowRecord record = borrowRecordService.returnBook(borrowRecordId);
-            return ResponseEntity.ok(record);
+            return ResponseEntity.ok(BorrowRecordDTO.toDTO(record));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -57,22 +49,34 @@ public class BorrowRecordController {
 
     // Get borrowing history for a user
     @GetMapping("/history/{userId}")
-    public ResponseEntity<List<BorrowRecord>> getBorrowHistoryByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<BorrowRecordDTO>> getBorrowHistoryByUser(@PathVariable Long userId) {
         List<BorrowRecord> history = borrowRecordService.getBorrowHistoryByUser(userId);
-        return ResponseEntity.ok(history);
+        List<BorrowRecordDTO> historyDTO = new ArrayList<>();
+        history.forEach(borrowRecord -> {
+            historyDTO.add(BorrowRecordDTO.toDTO(borrowRecord));
+        });
+        return ResponseEntity.ok(historyDTO);
     }
 
     // Get all borrow records (for librarians)
     @GetMapping
-    public ResponseEntity<List<BorrowRecord>> getAllBorrowRecords() {
+    public ResponseEntity<List<BorrowRecordDTO>> getAllBorrowRecords() {
         List<BorrowRecord> allRecords = borrowRecordService.getAllBorrowRecords();
-        return ResponseEntity.ok(allRecords);
+        List<BorrowRecordDTO> allDTO = new ArrayList<>();
+        allRecords.forEach(borrowRecord -> {
+            allDTO.add(BorrowRecordDTO.toDTO(borrowRecord));
+        });
+        return ResponseEntity.ok(allDTO);
     }
 
     // Get all overdue records
     @GetMapping("/overdue")
-    public ResponseEntity<List<BorrowRecord>> getOverdueRecords() {
+    public ResponseEntity<List<BorrowRecordDTO>> getOverdueRecords() {
         List<BorrowRecord> overdueRecords = borrowRecordService.getOverdueRecords();
-        return ResponseEntity.ok(overdueRecords);
+        List<BorrowRecordDTO> overdueDTO = new ArrayList<>();
+        overdueRecords.forEach(borrowRecord -> {
+            overdueDTO.add(BorrowRecordDTO.toDTO(borrowRecord));
+        });
+        return ResponseEntity.ok(overdueDTO);
     }
 }

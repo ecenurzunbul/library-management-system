@@ -25,4 +25,12 @@ public class UserDTO {
 
     private String contactDetails;
 
+    public static UserDTO toDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setRole(user.getRole());
+        userDTO.setContactDetails(user.getContactDetails());
+        return userDTO;
+    }
 }

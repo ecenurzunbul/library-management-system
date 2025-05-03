@@ -33,9 +33,9 @@ public class BookController {
 
     // Add new book
     @PostMapping
-    public ResponseEntity<Book> addBook(@Valid @RequestBody BookDTO bookDTO){
+    public ResponseEntity<BookDTO> addBook(@Valid @RequestBody BookDTO bookDTO){
         Book newBook = bookService.addBook(bookDTO);
-        return new ResponseEntity<>(newBook, HttpStatus.CREATED);
+        return new ResponseEntity<>(BookDTO.toDTO(newBook), HttpStatus.CREATED);
     }
 
     // Get book details by id
@@ -43,12 +43,7 @@ public class BookController {
     public ResponseEntity<BookDTO> getBookById(@PathVariable Long id){
         Optional<Book> bookOpt = bookService.getBookById(id);
         if(bookOpt.isPresent()){
-            BookDTO bookDTO = new BookDTO();
-            bookDTO.setAuthor(bookOpt.get().getAuthor());
-            bookDTO.setIsbn(bookOpt.get().getIsbn());
-            bookDTO.setPublicationDate(bookOpt.get().getPublicationDate());
-            bookDTO.setTitle(bookOpt.get().getTitle());
-            bookDTO.setGenre(bookOpt.get().getGenre());
+            BookDTO bookDTO = BookDTO.toDTO(bookOpt.get());
             return new ResponseEntity<>(bookDTO, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -80,11 +75,11 @@ public class BookController {
 
     // Update book info
     @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id,
+    public ResponseEntity<BookDTO> updateBook(@PathVariable Long id,
                                            @Valid @RequestBody BookDTO bookDTO){
         try {
             Book updatedBook = bookService.updateBook(id, bookDTO);
-            return ResponseEntity.ok(updatedBook);
+            return ResponseEntity.ok(BookDTO.toDTO(updatedBook));
         } catch (RuntimeException e){
             return ResponseEntity.notFound().build();
         }

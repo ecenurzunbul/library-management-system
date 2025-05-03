@@ -11,6 +11,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,32 +30,38 @@ public class UserController {
 
     // Register new user
     @PostMapping
-    public ResponseEntity<User> registerUser(@Valid @RequestBody UserDTO userDTO){
+    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserDTO userDTO){
         User newUser = userService.registerUser(userDTO);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(UserDTO.toDTO(newUser), HttpStatus.CREATED);
     }
 
     // Get user details by ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id){
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id){
         Optional<User> userOpt = userService.getUserById(id);
-        return userOpt.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if(userOpt.isPresent()){
+            UserDTO userDTO = UserDTO.toDTO(userOpt.get());
+            return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     // List all users
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(){
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserDTO>> getAllUsers(){
+        List<User> users = userService.getAllUsers();
+        List<UserDTO> userDTOs = new ArrayList<>();
+        users.forEach(user -> userDTOs.add(UserDTO.toDTO(user)));
+        return ResponseEntity.ok(userDTOs);
     }
 
     // Update user info
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id,
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
                                            @Valid @RequestBody UserDTO userDTO){
         try {
             User updatedUser = userService.updateUser(id, userDTO);
-            return ResponseEntity.ok(updatedUser);
+            return ResponseEntity.ok(UserDTO.toDTO(updatedUser));
         } catch (RuntimeException e){
             return ResponseEntity.notFound().build();
         }
