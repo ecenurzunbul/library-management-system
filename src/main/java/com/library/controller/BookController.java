@@ -62,13 +62,7 @@ public class BookController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Book> books = bookService.searchBooks(title, author, isbn, genre, pageable);
 
-        Page<BookDTO> bookDTOS = books.map(book -> BookDTO.builder()
-                .title(book.getTitle())
-                .author(book.getAuthor())
-                .isbn(book.getIsbn())
-                .publicationDate(book.getPublicationDate())
-                .genre(book.getGenre())
-                .build());
+        Page<BookDTO> bookDTOS = books.map(BookDTO::toDTO);
 
         return ResponseEntity.ok(bookDTOS);
     }
