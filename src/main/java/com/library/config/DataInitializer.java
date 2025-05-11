@@ -1,15 +1,11 @@
 package com.library.config;
 
-
 import com.library.model.User;
 import com.library.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-
-
 
 @Slf4j
 @Component
@@ -42,10 +38,8 @@ public class DataInitializer implements CommandLineRunner {
 
                userRepository.save(admin);
                log.info("Admin user created with email: {}", admin.getEmail());
-               System.out.println("Admin user created on startup.");
            } else {
                log.info("Admin user already exists. No action taken.");
-               System.out.println("Admin user already exists. No action taken.");
            }
        } catch (Exception e) {
            log.error("Exception in DataInitializer", e);

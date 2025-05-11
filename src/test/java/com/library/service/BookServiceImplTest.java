@@ -183,5 +183,28 @@ class BookServiceImplTest {
        assertEquals("Book not found with id: " + bookId, exception.getMessage());
    }
 
+    @Test
+    void getBookById_ShouldReturnEmpty_WhenNotFound() {
+        when(bookRepository.findById(999L)).thenReturn(Optional.empty());
+
+        Optional<Book> result = bookService.getBookById(999L);
+
+        assertFalse(result.isPresent());
+    }
+    @Test
+    void updateBook_ShouldThrowException_WhenBookNotFound() {
+        BookDTO dto = new BookDTO();
+        dto.setTitle("Doesn't matter");
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            bookService.updateBook(1L, dto);
+        });
+
+        assertEquals("Book not found with id: 1", exception.getMessage());
+    }
+
+
 
 }

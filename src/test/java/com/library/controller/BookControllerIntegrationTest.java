@@ -52,7 +52,6 @@ class BookControllerIntegrationTest {
         dto.setPublicationDate(LocalDate.of(2021, 5, 10));
         dto.setGenre("Test");
 
-
         mockMvc.perform(post("/api/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -61,11 +60,9 @@ class BookControllerIntegrationTest {
                 .andExpect(jsonPath("$.author").value("Integration Author"));
     }
 
-
     @Test
     @WithMockUser(roles = "LIBRARIAN")
     void getBookById_ShouldReturnBook() throws Exception {
-        // Prepare data first
         Book book = new Book();
         book.setTitle("Sample");
         book.setAuthor("Author");
@@ -75,13 +72,11 @@ class BookControllerIntegrationTest {
         book.setPublicationDate(LocalDate.of(2020, 1, 1));
         book = bookRepository.save(book);
 
-
         mockMvc.perform(get("/api/books/{id}", book.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Sample"))
                 .andExpect(jsonPath("$.author").value("Author"));
     }
-
 
     @Test
     @WithMockUser(roles = "LIBRARIAN")
@@ -90,11 +85,9 @@ class BookControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-
     @Test
     @WithMockUser(roles = "LIBRARIAN")
     void searchBooks_ShouldReturnBooks() throws Exception {
-        // Prepare data first
         Book book1 = new Book();
         book1.setTitle("Test Book 1");
         book1.setAuthor("Author 1");
@@ -103,7 +96,6 @@ class BookControllerIntegrationTest {
         book1.setGenre("Fiction");
         book1.setPublicationDate(LocalDate.of(2020, 1, 1));
         bookRepository.save(book1);
-
 
         Book book2 = new Book();
         book2.setTitle("Test Book 2");
@@ -114,20 +106,66 @@ class BookControllerIntegrationTest {
         book2.setPublicationDate(LocalDate.of(2020, 2, 1));
         bookRepository.save(book2);
 
-
         mockMvc.perform(get("/api/books")
                         .param("title", "Test")
                         .param("author", "Author")
-                        .param("genre", "Fiction")
-                )
+                        .param("genre", "Fiction"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title").value("Test Book 1"))
                 .andExpect(jsonPath("$.content[1].title").value("Test Book 2"));
-
-
-
-
     }
 
+    @Test
+    @WithMockUser(roles = "LIBRARIAN")
+    void searchBooks_NoMatch_ShouldReturnEmptyContent() throws Exception {
+        mockMvc.perform(get("/api/books")
+                        .param("title", "NoSuchBook")
+                        .param("author", "Unknown")
+                        .param("genre", "None"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());
+    }
 
+    @Test
+    @WithMockUser(roles = "LIBRARIAN")
+    void updateBook_ShouldReturnUpdatedBook() throws Exception {
+        Book book = new Book();
+        book.setTitle("Old Title");
+        book.setAuthor("Old Author");
+        book.setIsbn("1111111111");
+        book.setAvailable(true);
+        book.setGenre("Drama");
+        book.setPublicationDate(LocalDate.of(2019, 1, 1));
+        book = bookRepository.save(book);
+
+        BookDTO dto = new BookDTO();
+        dto.setTitle("New Title");
+        dto.setAuthor("New Author");
+        dto.setIsbn("2222222222");
+        dto.setGenre("Updated Genre");
+        dto.setPublicationDate(LocalDate.of(2022, 1, 1));
+
+        mockMvc.perform(put("/api/books/{id}", book.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("New Title"))
+                .andExpect(jsonPath("$.author").value("New Author"));
+    }
+
+    @Test
+    @WithMockUser(roles = "LIBRARIAN")
+    void deleteBook_ShouldReturnNoContent() throws Exception {
+        Book book = new Book();
+        book.setTitle("To Delete");
+        book.setAuthor("Author");
+        book.setIsbn("0000000000");
+        book.setAvailable(true);
+        book.setGenre("Sci-fi");
+        book.setPublicationDate(LocalDate.of(2020, 1, 1));
+        book = bookRepository.save(book);
+
+        mockMvc.perform(delete("/api/books/{id}", book.getId()))
+                .andExpect(status().isNoContent());
+    }
 }
