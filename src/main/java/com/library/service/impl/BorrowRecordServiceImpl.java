@@ -58,7 +58,7 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
             throw new Exception(BOOK_ALREADY_BORROWED.getMessage());
         }
         // Check if the user is eligible to borrow books
-        List<BorrowRecord> userBorrowRecords = borrowRecordRepository.findByBookIdAndReturnedFalse(userId);
+        List<BorrowRecord> userBorrowRecords = borrowRecordRepository.findByUserIdAndReturnedFalse(userId);
         if (userBorrowRecords.size() >= maxBooksPerUser) {
             throw new Exception(USER_MAXIMUM_BOOKS_BORROWED.getMessage());
         }
@@ -110,6 +110,11 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
     @Override
     public List<BorrowRecord> getAllBorrowRecords() {
         return borrowRecordRepository.findAll();
+    }
+
+    @Override
+    public List<BorrowRecord> getAllBorrowRecords(Long userId) {
+        return borrowRecordRepository.findAllByUserIdAndReturnedIsFalse(userId);
     }
 
     @Override

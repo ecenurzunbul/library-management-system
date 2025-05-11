@@ -253,7 +253,7 @@ class BorrowRecordServiceImplTest {
 
         when(bookRepository.findById(newBorrow.getId())).thenReturn(Optional.of(newBorrow));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(borrowRecordRepository.findByBookIdAndReturnedFalse(userId)).thenReturn(userBorrowRecords);
+        when(borrowRecordRepository.findByUserIdAndReturnedFalse(userId)).thenReturn(userBorrowRecords);
 
         Exception ex = assertThrows(Exception.class, () -> borrowRecordService.borrowBook(newBorrow.getId(), userId));
         assertEquals(USER_MAXIMUM_BOOKS_BORROWED.getMessage(), ex.getMessage());

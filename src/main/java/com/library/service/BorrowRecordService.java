@@ -15,6 +15,8 @@ public interface BorrowRecordService {
     List<BorrowRecord> getBorrowHistoryByUser(Long userId);
     
     List<BorrowRecord> getAllBorrowRecords();
-    
+
+    List<BorrowRecord> getAllBorrowRecords(Long userId);
+
     List<BorrowRecord> getOverdueRecords();
 }

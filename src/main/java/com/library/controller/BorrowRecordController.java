@@ -2,6 +2,8 @@ package com.library.controller;
 
 import com.library.dto.BorrowRecordDTO;
 import com.library.model.BorrowRecord;
+import com.library.security.CustomUserDetails;
+import com.library.security.JwtUtils;
 import com.library.service.BorrowRecordService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -64,6 +68,23 @@ public class BorrowRecordController {
             historyDTO.add(BorrowRecordDTO.toDTO(borrowRecord));
         });
         return ResponseEntity.ok(historyDTO);
+    }
+
+    // Get user's own borrow records for librarians and patrons
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('PATRON')")
+    @GetMapping("/my-borrows")
+    public ResponseEntity<List<BorrowRecordDTO>> getMyBorrowRecords() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getUser().getId();
+
+        List<BorrowRecord> allRecords = borrowRecordService.getAllBorrowRecords(userId);
+        List<BorrowRecordDTO> allDTO = new ArrayList<>();
+        allRecords.forEach(borrowRecord -> {
+            allDTO.add(BorrowRecordDTO.toDTO(borrowRecord));
+        });
+        return ResponseEntity.ok(allDTO);
     }
 
     // Get all borrow records (for librarians)
