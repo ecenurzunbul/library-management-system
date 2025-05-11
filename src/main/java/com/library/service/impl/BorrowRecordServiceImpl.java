@@ -9,6 +9,7 @@ import com.library.repository.UserRepository;
 import com.library.service.BorrowRecordService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -26,6 +27,9 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
     private final BorrowRecordRepository borrowRecordRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+
+    @Value("${app.user.maximum-books}")
+    private long maxBooksPerUser = 5;
 
     @Autowired
     public BorrowRecordServiceImpl(BorrowRecordRepository borrowRecordRepository,
@@ -52,6 +56,11 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
 
         if (!book.isAvailable()) {
             throw new Exception(BOOK_ALREADY_BORROWED.getMessage());
+        }
+        // Check if the user is eligible to borrow books
+        List<BorrowRecord> userBorrowRecords = borrowRecordRepository.findByBookIdAndReturnedFalse(userId);
+        if (userBorrowRecords.size() >= maxBooksPerUser) {
+            throw new Exception(USER_MAXIMUM_BOOKS_BORROWED.getMessage());
         }
 
         BorrowRecord record = new BorrowRecord();

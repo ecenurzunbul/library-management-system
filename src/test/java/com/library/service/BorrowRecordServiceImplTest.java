@@ -19,8 +19,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 
-import static com.library.constants.ErrorCode.BOOK_ALREADY_BORROWED;
-import static com.library.constants.ErrorCode.BOOK_ALREADY_RETURNED;
+import static com.library.constants.ErrorCode.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -229,4 +228,35 @@ class BorrowRecordServiceImplTest {
        assertEquals(1, result.size());
        verify(borrowRecordRepository).findByDueDateBeforeAndReturnedFalse(LocalDate.now());
    }
+
+   @Test
+    void borrowBook_shouldThrowException_WhenUserHasMaxBooks() throws Exception {
+        Long userId = 1L;
+        User user = new User();
+        user.setId(userId);
+
+        List<BorrowRecord> userBorrowRecords = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            BorrowRecord record = new BorrowRecord();
+            Book book = new Book();
+            book.setId((long) i);
+            book.setAvailable(false);
+            record.setUser(user);
+            record.setBook(book);
+            record.setReturned(false);
+            userBorrowRecords.add(record);
+        }
+
+        Book newBorrow = new Book();
+        newBorrow.setId(1000L);
+        newBorrow.setAvailable(true);
+
+        when(bookRepository.findById(newBorrow.getId())).thenReturn(Optional.of(newBorrow));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(borrowRecordRepository.findByBookIdAndReturnedFalse(userId)).thenReturn(userBorrowRecords);
+
+        Exception ex = assertThrows(Exception.class, () -> borrowRecordService.borrowBook(newBorrow.getId(), userId));
+        assertEquals(USER_MAXIMUM_BOOKS_BORROWED.getMessage(), ex.getMessage());
+    }
+
 }
