@@ -7,7 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class BookSearchCriteriaDTO {
     private String title;
     private String author;

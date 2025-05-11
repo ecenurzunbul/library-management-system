@@ -1,6 +1,8 @@
 package com.library.controller;
 
+import com.library.dto.BorrowBookRequestDTO;
 import com.library.dto.BorrowRecordDTO;
+import com.library.dto.ReturnBookRequestDTO;
 import com.library.model.BorrowRecord;
 import com.library.security.JwtUtils;
 import com.library.service.BorrowRecordService;
@@ -32,16 +34,15 @@ public class BorrowRecordController {
     @PreAuthorize("hasRole('LIBRARIAN')")
     @PostMapping("/borrow")
     public ResponseEntity<?> borrowBook(
-            @RequestParam Long bookId,
-            @RequestParam Long userId) {
-        return borrowBookRecord(bookId, userId);
+            @RequestBody BorrowBookRequestDTO borrowBookRequest) {
+        return borrowBookRecord(borrowBookRequest.getBookId(), borrowBookRequest.getUserId());
     }
 
 
     @PreAuthorize("hasRole('PATRON') or hasRole('LIBRARIAN')")
     @PostMapping("/self-borrow")
-    public ResponseEntity<?> getSelfBorrowRecords(@RequestParam Long bookId) {
-        return borrowBookRecord(bookId, JwtUtils.getUserId());
+    public ResponseEntity<?> getSelfBorrowRecords(@RequestBody BorrowBookRequestDTO borrowBookRequest) {
+        return borrowBookRecord(borrowBookRequest.getBookId(), JwtUtils.getUserId());
     }
 
     private ResponseEntity<?> borrowBookRecord(Long bookId, Long userId) {
@@ -57,9 +58,9 @@ public class BorrowRecordController {
     // Return a book
     @PreAuthorize("hasRole('LIBRARIAN')")
     @PostMapping("/return")
-    public ResponseEntity<?> returnBook(@RequestParam Long borrowRecordId) {
+    public ResponseEntity<?> returnBook(@RequestBody ReturnBookRequestDTO returnBookRequest) {
         try {
-            BorrowRecord record = borrowRecordService.returnBook(borrowRecordId);
+            BorrowRecord record = borrowRecordService.returnBook(returnBookRequest.getBorrowRecordId());
             return ResponseEntity.ok(BorrowRecordDTO.toDTO(record));
         } catch (Exception e) {
             log.error("Error returning book: {}", e.getMessage());
@@ -69,12 +70,12 @@ public class BorrowRecordController {
 
     @PreAuthorize("hasRole('LIBRARIAN') or hasRole('PATRON')")
     @PostMapping("/self-return")
-    public ResponseEntity<?> selfReturnBook(@RequestParam Long borrowRecordId) {
+    public ResponseEntity<?> selfReturnBook(@RequestBody ReturnBookRequestDTO returnBookRequest) {
         try {
             Long userId = JwtUtils.getUserId();
-            BorrowRecord record = borrowRecordService.returnBook(borrowRecordId);
+            BorrowRecord record = borrowRecordService.returnBook(returnBookRequest.getBorrowRecordId());
             if(record.getUser().getId().longValue() != userId.longValue()){
-                log.error(NOT_BORROWED_BY_USER.getMessage(), borrowRecordId);
+                log.error(NOT_BORROWED_BY_USER.getMessage(), returnBookRequest.getBorrowRecordId());
                 throw new RuntimeException(NOT_BORROWED_BY_USER.getMessage());
             }
             return ResponseEntity.ok(BorrowRecordDTO.toDTO(record));
