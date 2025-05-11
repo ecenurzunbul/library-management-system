@@ -70,7 +70,7 @@ docker-compose down -v
 
 
 ```bash
-curl --location 'localhost:8080/api/auth/login?email=cahit%40hotmail.com&password=default_password' \
+curl --location 'localhost:8080/api/auth/login' \
 --header 'Content-Type: application/json' \
 --data-raw '{
 "email": "admin@library.com",
