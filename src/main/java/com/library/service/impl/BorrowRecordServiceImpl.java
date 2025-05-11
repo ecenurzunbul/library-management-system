@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.library.constants.ErrorCode.*;
+
 @Service
 @Transactional
 public class BorrowRecordServiceImpl implements BorrowRecordService {
@@ -40,16 +42,16 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
         Optional<User> userOpt = userRepository.findById(userId);
 
         if (bookOpt.isEmpty()) {
-            throw new Exception("Book not found");
+            throw new Exception(BOOK_NOT_FOUND.getMessage());
         }
         if (userOpt.isEmpty()) {
-            throw new Exception("User not found");
+            throw new Exception(USER_NOT_FOUND.getMessage());
         }
 
         Book book = bookOpt.get();
 
         if (!book.isAvailable()) {
-            throw new Exception("Book is currently not available");
+            throw new Exception(BOOK_ALREADY_BORROWED.getMessage());
         }
 
         BorrowRecord record = new BorrowRecord();
@@ -69,13 +71,13 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
     public BorrowRecord returnBook(Long borrowRecordId) throws Exception {
         Optional<BorrowRecord> recordOpt = borrowRecordRepository.findById(borrowRecordId);
         if (recordOpt.isEmpty()) {
-            throw new Exception("Borrow record not found");
+            throw new Exception(BORROW_RECORD_NOT_FOUND.getMessage());
         }
 
         BorrowRecord record = recordOpt.get();
 
         if (record.isReturned()) {
-            throw new Exception("Book already returned");
+            throw new Exception(BOOK_ALREADY_RETURNED.getMessage());
         }
 
         // Mark as returned

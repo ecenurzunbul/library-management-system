@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 
+import static com.library.constants.ErrorCode.BOOK_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -179,8 +180,7 @@ class BookServiceImplTest {
            bookService.deleteBook(bookId);
        });
 
-
-       assertEquals("Book not found with id: " + bookId, exception.getMessage());
+       assertEquals(BOOK_NOT_FOUND.getMessage(), exception.getMessage());
    }
 
     @Test
@@ -195,14 +195,15 @@ class BookServiceImplTest {
     void updateBook_ShouldThrowException_WhenBookNotFound() {
         BookDTO dto = new BookDTO();
         dto.setTitle("Doesn't matter");
+        long bookId = 1L;
 
-        when(bookRepository.findById(1L)).thenReturn(Optional.empty());
+        when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            bookService.updateBook(1L, dto);
+            bookService.updateBook(bookId, dto);
         });
 
-        assertEquals("Book not found with id: 1", exception.getMessage());
+        assertTrue(exception.getMessage().contains(BOOK_NOT_FOUND.getMessage()));
     }
 
 

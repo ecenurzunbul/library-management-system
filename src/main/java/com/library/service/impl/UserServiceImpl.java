@@ -5,6 +5,7 @@ import com.library.model.User;
 import com.library.repository.UserRepository;
 import com.library.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,11 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.library.constants.ErrorCode.USER_NOT_FOUND;
+
 @Service
 @Transactional
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -41,7 +45,7 @@ public class UserServiceImpl implements UserService {
     public User updateUser(Long userId, UserDTO userDTO){
         Optional<User> userOpt = userRepository.findById(userId);
         if(userOpt.isEmpty()){
-            throw new RuntimeException("User not found with id: "+ userId);
+            logThrowUserNotFound(userId);
         }
         User user = userOpt.get();
         user.setName(userDTO.getName());
@@ -57,10 +61,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    private static void logThrowUserNotFound(Long userId) {
+        log.error("{} userid: {} ", USER_NOT_FOUND.getMessage(), userId);
+        throw new RuntimeException(USER_NOT_FOUND.getMessage());
+    }
+
     @Override
     public void deleteUser(Long userId){
         if(!userRepository.existsById(userId)){
-            throw new RuntimeException("User not found with id: "+ userId);
+            logThrowUserNotFound(userId);
         }
         userRepository.deleteById(userId);
     }

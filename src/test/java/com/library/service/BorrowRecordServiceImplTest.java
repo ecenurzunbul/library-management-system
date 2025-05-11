@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.util.*;
 
 
+import static com.library.constants.ErrorCode.BOOK_ALREADY_BORROWED;
+import static com.library.constants.ErrorCode.BOOK_ALREADY_RETURNED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -120,7 +122,7 @@ class BorrowRecordServiceImplTest {
 
 
        Exception ex = assertThrows(Exception.class, () -> borrowRecordService.borrowBook(1L, 1L));
-       assertEquals("Book is currently not available", ex.getMessage());
+       assertEquals(BOOK_ALREADY_BORROWED.getMessage(), ex.getMessage());
    }
 
 
@@ -174,12 +176,10 @@ class BorrowRecordServiceImplTest {
        BorrowRecord record = new BorrowRecord();
        record.setReturned(true);
 
-
        when(borrowRecordRepository.findById(anyLong())).thenReturn(Optional.of(record));
 
-
        Exception ex = assertThrows(Exception.class, () -> borrowRecordService.returnBook(1L));
-       assertEquals("Book already returned", ex.getMessage());
+       assertEquals(BOOK_ALREADY_RETURNED.getMessage(), ex.getMessage());
    }
 
 

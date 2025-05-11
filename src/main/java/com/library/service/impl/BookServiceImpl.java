@@ -4,18 +4,20 @@ import com.library.dto.BookDTO;
 import com.library.model.Book;
 import com.library.repository.BookRepository;
 import com.library.service.BookService;
-
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
-
 import java.util.Optional;
+
+import static com.library.constants.ErrorCode.BOOK_NOT_FOUND;
 
 @Service
 @Transactional
+@Slf4j
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
@@ -36,8 +38,6 @@ public class BookServiceImpl implements BookService {
         book.setGenre(bookDTO.getGenre());
         book.setAvailable(true); // new books are available by default
 
-        // Validation can be enhanced here
-        
         return bookRepository.save(book);
     }
 
@@ -46,7 +46,7 @@ public class BookServiceImpl implements BookService {
         Optional<Book> optionalBook = bookRepository.findById(bookId);
 
         if(optionalBook.isEmpty()){
-            throw new RuntimeException("No book found with id: " + bookId);
+            logThrowBookNotFound(bookId);
         }
 
         Book book = optionalBook.get();
@@ -62,9 +62,14 @@ public class BookServiceImpl implements BookService {
     @Override
     public void deleteBook(Long bookId) {
         if(!bookRepository.existsById(bookId)){
-            throw new RuntimeException("Book not found with id: "+ bookId);
+            logThrowBookNotFound(bookId);
         }
         bookRepository.deleteById(bookId);
+    }
+
+    private static void logThrowBookNotFound(Long bookId) {
+        log.error("{} bookId: {}", BOOK_NOT_FOUND.getMessage(), bookId);
+        throw new RuntimeException(BOOK_NOT_FOUND.getMessage());
     }
 
     @Override

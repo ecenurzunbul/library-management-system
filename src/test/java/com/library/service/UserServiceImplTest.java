@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.*;
 
 
+import static com.library.constants.ErrorCode.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -138,7 +139,7 @@ class UserServiceImplTest {
         });
 
 
-        assertEquals("User not found with id: 1", exception.getMessage());
+        assertEquals(USER_NOT_FOUND.getMessage(), exception.getMessage());
 
 
         verify(userRepository, times(1)).findById(1L);
@@ -171,7 +172,7 @@ class UserServiceImplTest {
         });
 
 
-        assertEquals("User not found with id: 1", exception.getMessage());
+        assertEquals(USER_NOT_FOUND.getMessage(), exception.getMessage());
 
 
         verify(userRepository, times(1)).existsById(userId);
