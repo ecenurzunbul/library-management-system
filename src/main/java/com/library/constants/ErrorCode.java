@@ -12,6 +12,7 @@ public enum ErrorCode {
     BOOK_NOT_BORROWED("BOOK_NOT_BORROWED", "Book is not borrowed"),
     INVALID_RETURN_DATE("INVALID_RETURN_DATE", "Invalid return date"),
     INVALID_BORROW_DATE("INVALID_BORROW_DATE", "Invalid borrow date"),
+    NOT_BORROWED_BY_USER("NOT_BORROWED_BY_USER", "Book is not borrowed by this user"),
     USER_MAXIMUM_BOOKS_BORROWED("USER_MAXIMUM_BOOKS_BORROWED", "User has reached the maximum number of borrowed books");
 
     private final String code;
