@@ -112,7 +112,11 @@ Before running the application locally, make sure you have the following install
 First, clone the repository to your local machine:
 
 ```  
-git clone https://github.com/ecenurzunbul/library-management-system.gitcd library-management-system
+git clone https://github.com/ecenurzunbul/library-management-system.git
+```  
+
+```  
+cd library-management-system
 ```  
 
 
